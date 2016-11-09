@@ -353,7 +353,7 @@ str;
 	 */
 	public function config() {
 		$id = ( int ) I ( 'id' );
-		$addon = M ( 'addons' )->find ( $id );
+		$addon = M ( 'plugin' )->find ( $id );
 		if (! $addon)
 			$this->error ( '插件未安装' );
 		$addon_class = get_addon_class ( $addon ['name'] );
