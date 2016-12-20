@@ -15,13 +15,15 @@ use Think\Model;
  */
 class QrCodeModel extends Model {
 	var $tableName = 'qr_code';
+	private $token;
 	private $appID;
 	private $appSecret;
 	private $accessToken;
 	public function _initialize() {
 		$token = get_token ();
-
-		empty ( $token ) && $token = DEFAULT_TOKEN;
+		if((empty($token)||$token==-1) && DEFAULT_TOKEN!=-1){
+			$this->token = $token = DEFAULT_TOKEN;
+		}
 
 		$public = get_token_appinfo ( $token );
 
@@ -50,7 +52,7 @@ class QrCodeModel extends Model {
 		$data ['extra_int'] = $extra_int;
 		
 		$data ['cTime'] = time ();
-		$data ['token'] = get_token ();
+		$data ['token'] = $this->token;
 		
 		$data ['qr_code'] = $this->QrcodeCreate ( $data ['scene_id'], $data ['action_name'] );
 		// dump ( $data );

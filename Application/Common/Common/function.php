@@ -1496,22 +1496,42 @@ function getPaymentOpenid($appId = "", $serect = "") {
 function get_token($token = NULL) {
 	$stoken = session ( 'token' );
 	
+	$reset = false;
 	if ($token !== NULL && $token != '-1') {
 		session ( 'token', $token );
+		$reset = true;
 	} elseif (! empty ( $_REQUEST ['token'] ) && $_REQUEST ['token'] != '-1') {
 		session ( 'token', $_REQUEST ['token'] );
+		$reset = true;
 	} elseif (! empty ( $_REQUEST ['publicid'] )) {
 		$publicid = I ( 'publicid' );
 		$token = D ( 'Common/Public' )->getInfo ( $publicid, 'token' );
 		$token && session ( 'token', $token );
+		$reset = true;
 	}
 	$token = session ( 'token' );
 	if (! empty ( $token ) && $token != '-1' && $stoken != $token && $GLOBALS ['is_wap']) {
 		session ( 'mid', null );
 	}
+	//加校验，防止使用无权限的公众号
+	if(!$GLOBALS['is_wap'] && $reset){
+		if(empty($GLOBALS['myinfo'])) $token = -1;
+		else{
+			$sql = 'SELECT public_id FROM `wp_public_link` as l LEFT JOIN wp_public as p on l.mp_id=p.id WHERE l.uid='.$GLOBALS['mid'];
+			$list = M()->query($sql);
+			$flat = false;
+			foreach ($list as $value) {
+				if($value['public_id']==$token){
+					$flat = true;
+				}
+			}
+
+			if(!$flat) $token = -1;
+		}
+	}
 	
-	if (empty ( $token ) || $token == '-1') {
-		$token = DEFAULT_TOKEN;
+	if (empty ( $token ) ) {
+		$token = -1;
 	}
 	
 	return $token;
