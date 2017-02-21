@@ -24,7 +24,7 @@ class MaterialModel extends Model {
 	 * @return array 导航树
 	 * @author 麦当苗儿 <zuojiazi@vip.qq.com>
 	 */
-	public function getMediaIdByGroupId($group_id) {
+	public function getMediaIdByGroupId($group_id,$from='') {
 		$map ['group_id'] = $group_id;
 		$list = $this->where ( $map )->order ( 'id asc' )->select ();
 		if (! empty ( $list [0] ['media_id'] ))
@@ -33,30 +33,37 @@ class MaterialModel extends Model {
 			// 自动同步到微信端
 		foreach ( $list as $vo ) {
 			$data ['title'] = $vo ['title'];
-			$data ['thumb_media_id'] = empty ( $vo ['thumb_media_id'] ) ? $this->_thumb_media_id ( $vo ['cover_id'] ) : $vo ['thumb_media_id'];
+			$data ['thumb_media_id'] = empty ( $vo ['thumb_media_id'] ) ? $this->_thumb_media_id ( $vo ['cover_id'],$from ) : $vo ['thumb_media_id'];
 			$data ['author'] = $vo ['author'];
 			$data ['digest'] = $vo ['intro'];
 			$data ['show_cover_pic'] = 1;
-			$data ['content'] = $vo ['content'];
+			$data ['content'] = $this->getNewContent($vo ['content']);
+			$data ['content'] = str_replace("\"","'",$data ['content']);
 			$data ['content_source_url'] = U ( 'news_detail', array (
 					'id' => $vo ['id'] 
 			) );
 			
 			$articles [] = $data;
 		}
-		
-		$url = 'https://api.weixin.qq.com/cgi-bin/material/add_news?access_token=' . get_access_token ();
+		if ($from =='sendall'){
+			$url = 'https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=' . get_access_token ();
+		}else{
+			$url = 'https://api.weixin.qq.com/cgi-bin/material/add_news?access_token=' . get_access_token ();
+		}
+	
 		$param ['articles'] = $articles;
 		
 		$res = post_data ( $url, $param );
 		if ($res ['errcode'] != 0) {
 			return false;
 		} else {
-			$this->where ( $map )->setField ( 'media_id', $res ['media_id'] );
+			if (empty($from)){
+				$this->where ( $map )->setField ( 'media_id', $res ['media_id'] );
+			}
 			return $res ['media_id'];
 		}
 	}
-	function _thumb_media_id($cover_id) {
+	function _thumb_media_id($cover_id,$from='') {
 		$cover = get_cover ( $cover_id );
 		$driver = C ( 'PICTURE_UPLOAD_DRIVER' );
 		if ($driver != 'Local' && ! file_exists ( SITE_PATH . $cover ['path'] )) { // 先把图片下载到本地
@@ -78,17 +85,42 @@ class MaterialModel extends Model {
 		
 		$param ['type'] = 'thumb';
 		$param ['media'] = '@' . realpath ( SITE_PATH . $path );
-		$url = 'https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=' . get_access_token ();
+		if ($from =='sendall'){
+			$param ['type'] = 'image';
+		    $url = 'https://api.weixin.qq.com/cgi-bin/media/upload?access_token=' . get_access_token ();
+		}else{
+		    $url = 'https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=' . get_access_token ();
+		}
+		
 		$res = post_data ( $url, $param, true );
 		
 		if (isset ( $res ['errcode'] ) && $res ['errcode'] != 0) {
 			return '';
 		}
-		
-		$map ['cover_id'] = $cover_id;
-		$map ['manager_id'] = $this->mid;
-		$this->where ( $map )->setField ( 'thumb_media_id', $res ['media_id'] );
-		
+		if (empty($from)){
+			$map ['cover_id'] = $cover_id;
+			$map ['manager_id'] = $this->mid;
+			$this->where ( $map )->setField ( 'thumb_media_id', $res ['media_id'] );
+		}
 		return $res ['media_id'];
 	}
+	
+	//图文消息的内容图片，上传到微信并获取新的链接覆盖
+	function getNewContent($content)
+	{
+	    if (! $content)
+	        return;
+	    $newUrl = array();
+	    // 获取文章中图片img标签
+	    //         $match=$this->getImgSrc($content);
+	    preg_match_all('#<img.*?src="([^"]*)"[^>]*>#i', $content, $match);
+	    foreach ($match[1] as $mm) {
+	        $newUrl[$mm] = uploadimg($mm);
+	    }
+	    if (count($newUrl)){
+	        $content_new = strtr($content, $newUrl);
+	    }
+	    return empty($content_new) ? $content : $content_new;
+	}
+	
 }
