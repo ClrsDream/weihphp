@@ -145,8 +145,8 @@ class WeixinAddonModel extends WeixinModel {
 			return true; // 告诉上面的关注方法，不需要再回复欢迎语了
 		} elseif ($qr ['addon'] == 'ScanLogin') {
 			$user = D ( 'Common/User' )->getUserInfo ( $GLOBALS ['mid'] );
-			S ( $qr ['extra_text'], $user, 120 );
-			
+			S ( $qr ['extra_text'], $user, 1200 );
+
 			$m_map ['uid'] = $GLOBALS ['mid'];
 			if (! M ( 'manager' )->where ( $m_map )->find ()) {
 				M ( 'manager' )->add ( $m_map );
