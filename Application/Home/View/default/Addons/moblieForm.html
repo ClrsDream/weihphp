@@ -121,6 +121,7 @@
                             <div class="mult_imgs">
                                 <div class="upload-img-view" id='mutl_picture_{$field.name}'>
                                   <notempty name="data[$field['name']]">
+                                  <php>$data[$field['name']] = explode(',', $data[$field['name']]);</php>
                                   	<volist name="data[$field['name']]" id="vo">
                                     <div class="upload-pre-item22">
                                     <img width="100" height="100" src="{$vo|get_cover_url}"/>

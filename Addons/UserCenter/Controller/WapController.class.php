@@ -321,7 +321,7 @@ class WapController extends AddonsController {
 		
 		$res ['msg'] = '';
 		// 获取access_token
-		$access_token = get_access_token ( $token );
+		$access_token = get_access_token ( $map ['token'] );
 		if (empty ( $access_token )) {
 			addAutoCheckLog ( 'access_token', 'access_token获取失败', $info ['token'] );
 		} else {
