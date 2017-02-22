@@ -20,7 +20,7 @@ class QrCodeModel extends Model {
 	private $appSecret;
 	private $accessToken;
 	public function _initialize() {
-		$token = get_token ();
+		$this->token = $token = get_token ();
 		if((empty($token)||$token==-1) && DEFAULT_TOKEN!=-1){
 			$this->token = $token = DEFAULT_TOKEN;
 		}
