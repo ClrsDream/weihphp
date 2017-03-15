@@ -106,7 +106,7 @@ class CustomMenuController extends AddonsController {
 		
 		$tree = $this->json_encode_cn ( $tree2 );
 		$access_token = get_access_token ();
-		file_get_contents ( 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=' . $access_token );
+		get_data ( 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=' . $access_token );
 		
 		$url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $access_token;
 		$header [] = "content-type: application/x-www-form-urlencoded; charset=UTF-8";
@@ -340,7 +340,7 @@ class CustomMenuController extends AddonsController {
 	}
 	function get_menu() {
 		$url = 'https://api.weixin.qq.com/cgi-bin/menu/get?access_token=' . get_access_token ();
-		$content = file_get_contents ( $url );
+		$content = get_data ( $url );
 	}
 	function get_target() {
 		$addon = I ( 'addon_name' );

@@ -56,7 +56,7 @@ class UserController extends HomeController {
 				$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?' . http_build_query ( $param );
 			}
 			
-			$content = file_get_contents ( $url );
+			$content = get_data ( $url );
 			$content = json_decode ( $content, true );
 			if (! empty ( $content ['errmsg'] )) {
 				exit ( $content ['errmsg'] );

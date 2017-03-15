@@ -45,14 +45,14 @@ class WapController extends AddonsController {
 				$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?' . http_build_query ( $param );
 			}
 			
-			$content = file_get_contents ( $url );
+			$content = get_data ( $url );
 			$content = json_decode ( $content, true );
 			if (! empty ( $content ['errmsg'] )) {
 				exit ( $content ['errmsg'] );
 			}
 			
 			$suburl = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . get_access_token () . '&openid=' . $content ['openid'] . '&lang=zh_CN';
-			$data = file_get_contents ( $suburl );
+			$data = get_data ( $suburl );
 			$data = json_decode ( $data, true );
 			$subscribe = $data ['subscribe'];
 			

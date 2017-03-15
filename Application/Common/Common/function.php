@@ -1555,7 +1555,7 @@ function getWeixinUserInfo($openid) {
 	$param2 ['lang'] = 'zh_CN';
 	
 	$url = 'https://api.weixin.qq.com/cgi-bin/user/info?' . http_build_query ( $param2 );
-	$content = file_get_contents ( $url );
+	$content = get_data ( $url );
 	$content = json_decode ( $content, true );
 	return $content;
 }
@@ -1640,7 +1640,7 @@ function get_access_token_by_apppid($appid, $secret, $update = false) {
 		return $res;
 	
 	$url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&secret=' . $secret . '&appid=' . $appid;
-	$tempArr = json_decode ( file_get_contents ( $url ), true );
+	$tempArr = json_decode ( get_data ( $url ), true );
 	if (@array_key_exists ( 'access_token', $tempArr )) {
 		S ( $key, $tempArr ['access_token'], $tempArr ['expires_in'] );
 		return $tempArr ['access_token'];
@@ -1701,7 +1701,7 @@ function OAuthWeixin($callback, $token = '', $is_return = false) {
 			$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?' . http_build_query ( $param );
 		}
 		
-		$content = file_get_contents ( $url );
+		$content = get_data ( $url );
 		$content = json_decode ( $content, true );
 		if ($is_return) {
 			return $content ['openid'];
@@ -1810,13 +1810,7 @@ function real_strip_tags($str, $allowable_tags = "") {
 }
 // 防超时的file_get_contents改造函数
 function wp_file_get_contents($url) {
-	$context = stream_context_create ( array (
-			'http' => array (
-					'timeout' => 30 
-			) 
-	) ); // 超时时间，单位为秒
-	
-	return file_get_contents ( $url, 0, $context );
+	return get_data ( $url, 30 );
 }
 
 // 全局的安全过滤函数
@@ -2825,7 +2819,16 @@ function rmdirr($dirname) {
 function wp_money_format($number, $decimals = '2') {
 	return number_format ( $number, $decimals );
 }
-
+// 以GET方式获取数据，替代file_get_contents
+function get_data($url, $timeout = 5){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    $file_contents = curl_exec($ch);
+    curl_close($ch);
+    return $file_contents;
+}
 // 以POST方式提交数据
 function post_data($url, $param, $is_file = false, $return_array = true) {
 	set_time_limit ( 0 );

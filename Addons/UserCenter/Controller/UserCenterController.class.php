@@ -510,7 +510,7 @@ class UserCenterController extends AddonsController {
 			$countdata ['access_token'] = get_access_token ();
 			foreach ( $param ['user_list'] as $p ) {
 				$single_url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . get_access_token () . '&openid=' . $p ['openid'] . '&lang=zh_CN';
-				$tempArr = json_decode ( file_get_contents ( $single_url ), true );
+				$tempArr = json_decode ( get_data ( $single_url ), true );
 				if (empty ( $tempArr )) {
 					$tempArr = outputCurl ( $single_url );
 					$tempArr = json_decode ( $tempArr, true );
