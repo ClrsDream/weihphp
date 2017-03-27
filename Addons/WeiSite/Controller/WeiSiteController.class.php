@@ -5,6 +5,10 @@ namespace Addons\WeiSite\Controller;
 use Addons\WeiSite\Controller\BaseController;
 
 class WeiSiteController extends BaseController {
+	function _initialize(){
+		$GLOBALS ['is_wap'] = 1;
+		parent::_initialize();
+	}
 	function config() {
 		$public_info = get_token_appinfo ();
 		$normal_tips = '在微信里回复“微官网”即可以查看效果,也可以点击：<a href="' . addons_url ( 'WeiSite://WeiSite/index', array (
