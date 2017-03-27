@@ -569,7 +569,7 @@ class MemberController extends BaseController {
 			add_credit ( $credit_type, 0, $credit );
 		}
 		if ($reward ['shop_coupon'] && is_install("ShopCoupon")) { // 送优惠券
-			D ( 'Addons://ShopCoupon/Coupon' )->sendCoupon ( $reward ['shop_coupon_param'], $this->mid );
+			D ( 'Addons://ShopCoupon/ShopCoupon' )->sendCoupon ( $reward ['shop_coupon_param'], $this->mid );
 		}
 	}
 }

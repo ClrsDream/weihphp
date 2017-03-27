@@ -198,7 +198,7 @@ class SnCodeModel extends Model {
 		$mid = get_mid ();
 		$list = $this->getMyAll ( $mid, 'ShopCoupon' );
 		foreach ( $list as $k => &$v ) {
-			$coupon = ( array ) D ( 'Addons://ShopCoupon/Coupon' )->getInfo ( $v ['target_id'] );
+			$coupon = ( array ) D ( 'Addons://ShopCoupon/ShopCoupon' )->getInfo ( $v ['target_id'] );
 			if ($coupon) {
 				$v ['sn_id'] = $v ['id'];
 				$v = array_merge ( $v, $coupon );

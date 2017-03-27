@@ -209,7 +209,7 @@ class HelpOpenController extends AddonsController {
 	    if (!is_install("ShopCoupon")){
 	        return false;
 	    }
-		$list = D ( 'Addons://ShopCoupon/Coupon' )->getSelectList ();
+		$list = D ( 'Addons://ShopCoupon/ShopCoupon' )->getSelectList ();
 		$this->assign ( 'shop_conpon_list', $list );
 	}
 	// 获取优惠券列表
@@ -572,7 +572,7 @@ class HelpOpenController extends AddonsController {
 				$vo ['money'] = '0.0';
 			} else {
                 if (is_install("ShopCoupon")) {
-                    $info = D('Addons://ShopCoupon/Coupon')->getInfo($prize['coupon_id']);
+                    $info = D('Addons://ShopCoupon/ShopCoupon')->getInfo($prize['coupon_id']);
                     $vo['content'] = '核销代金券： ' . $info['title'] . ', 奖项名： ' . $prize['name'];
                     $vo['money'] = $vo['prize_title'];
                 }
@@ -657,7 +657,7 @@ class HelpOpenController extends AddonsController {
 				$vo ['money'] = '0.0';
 			} else {
                 if (is_install("ShopCoupon")) {
-                    $info = D('Addons://ShopCoupon/Coupon')->getInfo($prize['coupon_id']);
+                    $info = D('Addons://ShopCoupon/ShopCoupon')->getInfo($prize['coupon_id']);
                     $vo['content'] = '核销代金券： ' . $info['title'] . ', 奖项名： ' . $prize['name'];
                     $vo['money'] = $vo['prize_title'];
                 }

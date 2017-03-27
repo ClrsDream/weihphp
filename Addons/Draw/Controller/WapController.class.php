@@ -499,7 +499,7 @@ class WapController extends AddonsController {
 				$data ['djtime'] = time ();
 				$res ['other'] = 3;
 				if (is_install("ShopCoupon")) {
-                    $res1 = D('Addons://ShopCoupon/Coupon')->sendCoupon($awardInfo['coupon_id'], $this->mid);
+                    $res1 = D('Addons://ShopCoupon/ShopCoupon')->sendCoupon($awardInfo['coupon_id'], $this->mid);
                 }
 				$res ['sn_id'] = $res1;
 				// 代金券
@@ -610,7 +610,7 @@ class WapController extends AddonsController {
 					$flat = false;
 				}
 			} else if ($awardInfo ['award_type'] == 3 && is_install("ShopCoupon")) {
-				$info = D ( 'Addons://ShopCoupon/Coupon' )->getInfo ( $awardInfo ['coupon_id'] );
+				$info = D ( 'Addons://ShopCoupon/ShopCoupon' )->getInfo ( $awardInfo ['coupon_id'] );
 				if ($info ['collect_count'] >= $info ['num']) {
 					$flat = false;
 				} else if (! empty ( $info ['start_time'] ) && $info ['start_time'] > NOW_TIME) {

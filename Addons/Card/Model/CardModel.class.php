@@ -125,7 +125,7 @@ class CardModel extends Model {
 	            add_credit ( 'card_reward', 0, $credit );
 	        } else { // 送代金券
 	            if (is_install("ShopCoupon")) {
-                    D('Addons://ShopCoupon/Coupon')->sendCoupon($event_info['coupon_id'], $uid);
+                    D('Addons://ShopCoupon/ShopCoupon')->sendCoupon($event_info['coupon_id'], $uid);
                 }
 	        }
 	    }

@@ -3731,7 +3731,7 @@ function get_prize_detail($prizeValue) {
 			$imgurl = $pdata ['background'];
 			$total_count = $pdata ['num'];
 		} elseif ($keyArr [0] == 'shopCoupon' && is_install("ShopCoupon")) {
-			$pdata = D ( 'Addons://ShopCoupon/Coupon' )->getInfo ( $keyArr [1] );
+			$pdata = D ( 'Addons://ShopCoupon/ShopCoupon' )->getInfo ( $keyArr [1] );
 			$typeName = '代金卷';
 			$title = $pdata ['title'];
 			$total_count = $pdata ['num'];

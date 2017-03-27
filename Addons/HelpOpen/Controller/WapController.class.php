@@ -147,7 +147,7 @@ class WapController extends AddonsController {
 					}
 				} elseif ($vv ['prize_type'] == 2 && is_install("ShopCoupon")) { // 代金券 TM00483 获得代金券通知
 					// 金额
-					$scouponinfo = D ( 'Addons://ShopCoupon/Coupon' )->getInfo ( $vv ['shop_coupon_id'] );
+					$scouponinfo = D ( 'Addons://ShopCoupon/ShopCoupon' )->getInfo ( $vv ['shop_coupon_id'] );
 					$snMap['target_id']=$vv ['shop_coupon_id'];
 					$snMap['addon']="ShopCoupon";
 					$snMap['can_use']=1;
@@ -265,7 +265,7 @@ class WapController extends AddonsController {
 			$data ['addon'] = 'ShopCoupon';
 			
 			// 金额
-			$info = D ( 'Addons://ShopCoupon/Coupon' )->getInfo ( $prize ['shop_coupon_id'] );
+			$info = D ( 'Addons://ShopCoupon/ShopCoupon' )->getInfo ( $prize ['shop_coupon_id'] );
 			$data ['prize_title'] = $info ['money'];
 			if ($info ['is_money_rand']) {
 				$data ['prize_title'] = rand ( $info ['money'] * 100, $info ['money_max'] * 100 ) / 100;

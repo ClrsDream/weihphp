@@ -29,7 +29,7 @@ class AwardModel extends Model{
             	    $info['award_title']=$coupon['title'];
             	    $info['coupon_num']=$coupon['num'];
             	}else if ($info['award_type']==3 &&  is_install("ShopCoupon")){
-            	    $coupon=D('Addons://ShopCoupon/Coupon')->getInfo($info['coupon_id']);
+            	    $coupon=D('Addons://ShopCoupon/ShopCoupon')->getInfo($info['coupon_id']);
             	    $info['coupon_num']=$coupon['num'];
             	    $info['award_title']=$coupon['title'];
             	}else if($info['award_type']==4){

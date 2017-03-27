@@ -158,7 +158,7 @@ class WapController extends BaseController {
 	        add_credit ( $credit_type, 0, $credit );
 	    }
 	    if ($reward ['shop_coupon'] && is_install("ShopCoupon")) { // 送优惠券
-	        D ( 'Addons://ShopCoupon/Coupon' )->sendCoupon ( $reward ['shop_coupon_param'], $this->mid );
+	        D ( 'Addons://ShopCoupon/ShopCoupon' )->sendCoupon ( $reward ['shop_coupon_param'], $this->mid );
 	    }
 	}
 	
@@ -460,7 +460,7 @@ class WapController extends BaseController {
 	            add_credit ( 'card_reward', 0, $credit );
 	        } else { // 送代金券
 	            if (is_install("ShopCoupon")) {
-                    D('Addons://ShopCoupon/Coupon')->sendCoupon($event_info['coupon_id'], $this->mid);
+                    D('Addons://ShopCoupon/ShopCoupon')->sendCoupon($event_info['coupon_id'], $this->mid);
                 }
 	        }
 	    }
@@ -565,7 +565,7 @@ class WapController extends BaseController {
 			            add_credit ( 'card_reward', 0, $credit );
 			        } else { // 送代金券
 			            if (is_install("ShopCoupon")) {
-                            D('Addons://ShopCoupon/Coupon')->sendCoupon($event_info['coupon_id'], $this->mid);
+                            D('Addons://ShopCoupon/ShopCoupon')->sendCoupon($event_info['coupon_id'], $this->mid);
                         }
 			        }
 			    }
@@ -1075,7 +1075,7 @@ class WapController extends BaseController {
 	        $logs=M('score_exchange_log')->where($map1)->count();
 	        if ($v['coupon_type']==0 ){
 	            if (is_install("ShopCoupon")) {
-                    $info = D('Addons://ShopCoupon/Coupon')->getInfo($v['coupon_id']);
+                    $info = D('Addons://ShopCoupon/ShopCoupon')->getInfo($v['coupon_id']);
                     $list = D('Common/SnCode')->getMyList($map['uid'], $v['coupon_id'], 'ShopCoupon');
                     $my_count = count($list);
                     if ($info['limit_num'] > 0 && $my_count >= $info['limit_num']) {
@@ -1120,7 +1120,7 @@ class WapController extends BaseController {
 	    $coupon_id=I('get.coupon_id');
 	    if ($card_score['coupon_type']==0){
 	        if (is_install("ShopCoupon")) {
-                $res = D('Addons://ShopCoupon/Coupon')->sendCoupon($coupon_id, $this->mid);
+                $res = D('Addons://ShopCoupon/ShopCoupon')->sendCoupon($coupon_id, $this->mid);
             }
 	    }else {
 	       $res=D ( 'Addons://Coupon/Coupon' )->sendCoupon ( $coupon_id, $this->mid );
