@@ -1517,7 +1517,7 @@ function get_token($token = NULL) {
 	if(!$GLOBALS['is_wap'] && $reset){
 		if(empty($GLOBALS['myinfo'])) $token = -1;
 		else{
-			$sql = 'SELECT public_id FROM `wp_public_link` as l LEFT JOIN wp_public as p on l.mp_id=p.id WHERE l.uid='.$GLOBALS['mid'];
+			$sql = 'SELECT public_id FROM `'.C('DB_PREFIX').'public_link` as l LEFT JOIN '.C('DB_PREFIX').'public as p on l.mp_id=p.id WHERE l.uid='.$GLOBALS['mid'];
 			$list = M()->query($sql);
 			$flat = false;
 			foreach ($list as $value) {
