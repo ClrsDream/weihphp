@@ -936,8 +936,8 @@ class WapController extends BaseController {
 	                }
 	            }
 	        }
-	        $searchArr['[本次明豆]']=$get_score;
-	        $searchArr['[明豆余额]']=$user['score'];
+	        $searchArr['[本次积分]']=$get_score;
+	        $searchArr['[积分余额]']=$user['score'];
 	        $searchArr['[签到时间]']=time_format(NOW_TIME);
 	        //获取今天签到数
 	        $allLog=M('signin_log')->where($map1)->count();
