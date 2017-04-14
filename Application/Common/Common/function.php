@@ -2825,6 +2825,10 @@ function get_data($url, $timeout = 5){
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // 跳过证书检查  
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);//不检查证书
+    
     $file_contents = curl_exec($ch);
     curl_close($ch);
     return $file_contents;
