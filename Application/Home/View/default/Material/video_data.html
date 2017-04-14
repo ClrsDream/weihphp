@@ -4,7 +4,7 @@
 </style>
 <body style="background: #fff;">
 <empty name="list_data">
-<div class="empty_container"><p>您的视频素材库为空，<a href="{:U('Home/Material/video_lists')}">请先增加素材</a></p></div>
+<div class="empty_container"><p>您的视频素材库为空，<a target="_blank" href="{:U('Home/Material/video_lists')}">请先增加素材</a></p></div>
 <else /><div class="data_container"><ul class="picture_list">
       <volist name="list_data" id="vo">
       <li  class="appmsg_li" data-id="{$vo.id}"  style="overflow:hidden">
@@ -22,7 +22,18 @@
                 </li>
             </volist>
             <div class="hover_area"></div>
-        </volist></ul>
+        </ul>
+       </div>
 </empty>
-<div class="page"> {$_page|default=''} </div></div>
+<div class="page"> {$_page|default=''} </div>
+<script type="text/javascript">
+$(function(){
+	$('.picture_list').masonry({
+		// options
+		itemSelector : '.appmsg_li'
+		//columnWidth : 308
+	  });
+});
+
+</script>
 </body>

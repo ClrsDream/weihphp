@@ -4,7 +4,7 @@
 </style>
 <body style="background: #fff;">
 <empty name="list_data">
-<div class="empty_container"><p>您的语音素材库为空，<a href="{:U('Home/Material/material_lists')}">请先增加素材</a></p></div>
+<div class="empty_container"><p>您的语音素材库为空，<a target="_blank" href="{:U('Home/Material/voice_lists')}">请先增加素材</a></p></div>
 <else /><div class="data_container"><ul class="material_list">
       <volist name="list_data" id="vo">
       <li class="appmsg_li" data-id="{$vo.id}"  style="overflow:hidden">
@@ -18,6 +18,7 @@
          </div>
       </li>
       </if></volist></ul>
+      </div>
 </empty>
 <div class="page"> {$_page|default=''} </div></div>
 <script type='text/javascript'>
@@ -36,5 +37,13 @@ function playSound(id,obj){
 	$(obj).find('img').attr('src',IMG_PATH+'/icon_sound.png');
 	
 }
+
+$(function(){
+	$('.material_list').masonry({
+		// options
+		itemSelector : '.appmsg_li'
+		//columnWidth : 308
+	  });
+});
 </script>
 </body>
