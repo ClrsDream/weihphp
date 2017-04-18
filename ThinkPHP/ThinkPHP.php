@@ -91,7 +91,21 @@ if (! IS_CLI) {
 		define ( '__ROOT__', (($_root == '/' || $_root == '\\') ? '' : $_root) );
 	}
 }
-define ( 'HTTP_PREFIX', isset ( $_SERVER ['HTTPS'] ) && $_SERVER ['HTTPS'] == 'on' ? 'https://' : 'http://' );
+if (! defined('HTTP_PREFIX')) {
+    $isSecure = false;
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $isSecure = true;
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+        $isSecure = true;
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
+        $isSecure = true;
+    } elseif (isset($_SERVER['HTTP_X_CLIENT_PROTO']) && $_SERVER['HTTP_X_CLIENT_PROTO'] == 'https') {
+        $isSecure = true;
+    }
+    
+    define('HTTP_PREFIX', $isSecure ? 'https://' : 'http://');
+  
+}
 define ( 'SITE_DOMAIN', strip_tags ( $_SERVER ['HTTP_HOST'] ) );
 define ( 'SITE_URL', HTTP_PREFIX . SITE_DOMAIN . __ROOT__ );
 define ( 'SITE_DIR_NAME', str_replace ( '.', '_', pathinfo ( SITE_PATH, PATHINFO_BASENAME ) ) ); // 网站目录名，通常用于缓存，session,cookie的前缀，以防止多网站里数据冲突

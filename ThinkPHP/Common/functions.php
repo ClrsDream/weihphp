@@ -1172,6 +1172,12 @@ function U($url = '', $vars = '', $suffix = true, $domain = true) {
 				'' 
 		), $url );
 	}
+
+    //20170105 凡星
+    if(HTTP_PREFIX == 'https://' && !strpos($url,'https')){            
+        $url = str_replace('http', 'https', $url);            
+    }
+
 	return $url;
 }
 
