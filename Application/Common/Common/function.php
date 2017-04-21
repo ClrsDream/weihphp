@@ -1649,7 +1649,7 @@ function get_access_token_by_apppid($appid, $secret, $update = false) {
 	}
 }
 function OAuthWeixin($callback, $token = '', $is_return = false) {
-	if ((defined ( 'IN_WEIXIN' ) && IN_WEIXIN) || isset ( $_GET ['is_stree'] ) || ! C ( 'USER_OAUTH' ))
+	if ((defined ( 'IN_WEIXIN' ) && IN_WEIXIN) || isset ( $_GET ['is_stree'] ))
 		return false;
 	
 	$isWeixinBrowser = isWeixinBrowser ();
@@ -1667,6 +1667,9 @@ function OAuthWeixin($callback, $token = '', $is_return = false) {
 		$info ['appid'] = $arr [0];
 		$info ['secret'] = $arr [1];
 	} else {
+		if (! C ( 'USER_OAUTH' ))
+			return false;
+		
 		$info = get_token_appinfo ( $token );
 	}
 	if (empty ( $info ['appid'] )) {
@@ -2834,17 +2837,19 @@ function get_data($url, $timeout = 5){
     return $file_contents;
 }
 // 以POST方式提交数据
-function post_data($url, $param, $is_file = false, $return_array = true) {
-	set_time_limit ( 0 );
-	if (! $is_file && is_array ( $param )) {
-		$param = JSON ( $param );
+function post_data($url, $param, $type = 'json', $return_array = true, $useCert = []) {
+	$type === false && $type = 'json'; // 兼容老版本
+	$type === true && $type = 'file'; // 兼容老版本
+	if ($type == 'json' && is_array ( $param )) {
+		$param = json_encode ( $param, JSON_UNESCAPED_UNICODE );
+	} elseif ($type == 'xml' && is_array ( $param )) {
+		$param = ToXml ( $param );
 	}
-	if ($is_file) {
-		$header [] = "content-type: multipart/form-data; charset=UTF-8";
-	} else {
-		$header [] = "content-type: application/json; charset=UTF-8";
-	}
+	// 初始化curl
 	$ch = curl_init ();
+	// 设置超时
+	curl_setopt ( $ch, CURLOPT_TIMEOUT, 30 );
+	
 	if (class_exists ( '/CURLFile' )) { // php5.5跟php5.6中的CURLOPT_SAFE_UPLOAD的默认值不同
 		curl_setopt ( $ch, CURLOPT_SAFE_UPLOAD, true );
 	} else {
@@ -2853,28 +2858,85 @@ function post_data($url, $param, $is_file = false, $return_array = true) {
 		}
 	}
 	curl_setopt ( $ch, CURLOPT_URL, $url );
-	curl_setopt ( $ch, CURLOPT_CUSTOMREQUEST, "POST" );
-	curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
-	curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, FALSE );
-	curl_setopt ( $ch, CURLOPT_HTTPHEADER, $header );
-	curl_setopt ( $ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)' );
+	curl_setopt ( $ch, CURLOPT_POST, true );
+	curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );
+	curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, false );
+	
+	// 设置header
+	if ($type == 'file') {
+		$header [] = "content-type: multipart/form-data; charset=UTF-8";
+		curl_setopt ( $ch, CURLOPT_HTTPHEADER, $header );
+	} elseif ($type == 'xml') {
+		curl_setopt ( $ch, CURLOPT_HEADER, false );
+	} else {
+		$header [] = "content-type: application/json; charset=UTF-8";
+		curl_setopt ( $ch, CURLOPT_HTTPHEADER, $header );
+	}
+	
+	// curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)');
 	curl_setopt ( $ch, CURLOPT_FOLLOWLOCATION, 1 );
 	curl_setopt ( $ch, CURLOPT_AUTOREFERER, 1 );
 	curl_setopt ( $ch, CURLOPT_POSTFIELDS, $param );
+	// 要求结果为字符串且输出到屏幕上
 	curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-	$res = curl_exec ( $ch );
-	$flat = curl_errno ( $ch );
-	if ($flat) {
-		$data = curl_error ( $ch );
-		addWeixinLog ( $flat, 'post_data flat' );
-		addWeixinLog ( $data, 'post_data msg' );
+	// 使用证书：cert 与 key 分别属于两个.pem文件
+	if (isset ( $useCert ['certPath'] ) && isset ( $useCert ['keyPath'] )) {
+		curl_setopt ( $ch, CURLOPT_SSLCERTTYPE, 'PEM' );
+		curl_setopt ( $ch, CURLOPT_SSLCERT, $useCert ['certPath'] );
+		curl_setopt ( $ch, CURLOPT_SSLKEYTYPE, 'PEM' );
+		curl_setopt ( $ch, CURLOPT_SSLKEY, $useCert ['keyPath'] );
 	}
 	
-	curl_close ( $ch );
+	$res = curl_exec ( $ch );
+	$flat = curl_errno ( $ch );
+	$msg = '';
+	if ($flat) {
+		$msg = curl_error ( $ch );
+	}
+
+	if ($flat) {
+		return [ 
+				'curl_erron' => $flat,
+				'curl_error' => $msg 
+		];
+	} else {
+		if ($return_array && ! empty ( $res )) {
+			$res = $type == 'xml' ? FromXml ( $res ) : json_decode ( $res, true );
+		}
+		
+		return $res;
+	}
+}
+/**
+ * 输出xml字符
+ */
+function ToXml($arr = []) {
+	if (! is_array ( $arr ) || count ( $arr ) <= 0) {
+		exit ( "数组数据异常！" );
+	}
 	
-	$return_array && $res = json_decode ( $res, true );
-	
-	return $res;
+	$xml = "<xml>";
+	foreach ( $arr as $key => $val ) {
+		if (is_numeric ( $val )) {
+			$xml .= "<" . $key . ">" . $val . "</" . $key . ">";
+		} else {
+			$xml .= "<" . $key . "><![CDATA[" . $val . "]]></" . $key . ">";
+		}
+	}
+	$xml .= "</xml>";
+	return $xml;
+}
+
+/**
+ * 将xml转为array
+ */
+function FromXml($xml) {
+	if (! $xml) {
+		exit ( "xml数据异常！" );
+	}
+	// 将XML转为array
+	$arr = json_decode ( json_encode ( simplexml_load_string ( $xml, 'SimpleXMLElement', LIBXML_NOCDATA ) ), true );
+	return $arr;
 }
 // 生成签名
 function make_sign($paraMap = array(), $partner_key = '') {

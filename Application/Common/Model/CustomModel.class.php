@@ -16,15 +16,16 @@ class CustomModel extends Model {
 	}
 	/* 回复图片消息 */
 	public function replyImage($uid, $media_id, $type = 'cover_id') {
-		$type == 'cover_id' && $media_id = $this->get_image_media_id ( $media_id );
-		//素材图片id
-		if ($type =='material_image'){
-		    $imageMaterial=M('material_image')->find($media_id);
-		    if ($imageMaterial['media_id']){
-		        $media_id=$imageMaterial['media_id'];
-		    }else{
-		        $media_id=$this->get_image_media_id($media_id);
-		    }
+		// 素材图片id
+		if ($type == 'cover_id') {
+			$media_id = $this->get_image_media_id ( $media_id );
+		} elseif ($type == 'material_image') {
+			$imageMaterial = M ( 'material_image' )->find ( $media_id );
+			if ($imageMaterial ['media_id']) {
+				$media_id = $imageMaterial ['media_id'];
+			} else {
+				$media_id = $this->get_image_media_id ( $media_id );
+			}
 		}
 		$param ['image'] ['media_id'] = $media_id;
 		
@@ -119,10 +120,14 @@ class CustomModel extends Model {
 	
 	/* 发送回复消息到微信平台 */
 	function _replyData($uid, $param, $msg_type) {
-		$map ['token'] = get_token ();
-		$map ['uid'] = $uid;
-		
-		$param ['touser'] = M ( 'public_follow' )->where ( $map )->getField ( 'openid' );
+		if (is_numeric ( $uid )) {
+			$map ['token'] = get_token ();
+			$map ['uid'] = $uid;
+			
+			$param ['touser'] = M ( 'public_follow' )->where ( $map )->getField ( 'openid' );
+		} else {
+			$param ['touser'] = $uid;
+		}
 		$param ['msgtype'] = $msg_type;
 		
 		$url = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . get_access_token ();

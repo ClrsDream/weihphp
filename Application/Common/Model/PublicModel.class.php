@@ -39,8 +39,7 @@ class PublicModel extends Model {
 	}
 	function clear($id, $type = '', $uid = '') {
 		$info = $this->getInfo ( $id, '', true );
-		$token=get_token();
-		$this->getInfoByToken($token,'',true);
+		$this->getInfoByToken ( $info ['token'], '', true );
 	}
 	function getMyPublics($uid) {
 		$map ['uid'] = $uid;
@@ -51,20 +50,25 @@ class PublicModel extends Model {
 		}
 		return $res;
 	}
-	function addPublic() {
-	}
-	function updateRefreshToken($appid, $refresh_token){
-		$map['appid'] = $appid;
-		$info = $this->where($map)->field('id')->find();
-		if(!$info){
+	function updateRefreshToken($appid, $refresh_token) {
+		$map ['appid'] = $appid;
+		$info = $this->where ( $map )->field ( 'id' )->find ();
+		if (! $info) {
 			return false;
 		}
-
-		$save['authorizer_refresh_token'] = $refresh_token;
-		$res = $this->where($map)->save($save);
-		if($res){
-			$this->clear($info['id']);
+		
+		$save ['authorizer_refresh_token'] = $refresh_token;
+		$res = $this->where ( $map )->save ( $save );
+		if ($res) {
+			$this->clear ( $info ['id'] );
 		}
+	}
+	function updateInfo($id, $save) {
+		$map ['id'] = $id;
+		$res = $this->where ( $map )->save ( $save );
+		
+		$this->clear ( $id );
+		return $res;
 	}
 }
 ?>

@@ -38,7 +38,18 @@ class WeixinController extends HomeController {
 		exit ();
 	}
 	private function reply($data, $weixin) {
-		$key = trim ( $data ['Content'] );
+		if (isset ( $data ['Recognition'] ) && ! empty ( $data ['Recognition'] )) {
+			$key = $data ['Recognition'] = str_replace ( array (
+					'!',
+					',',
+					'?',
+					'！' 
+			), '', $data ['Recognition'] );
+		} else {
+			$key = $data ['Content'];
+		}
+		
+		$key = trim ( $key );
 		$keywordArr = array ();
 		
 		// 插件权限控制
