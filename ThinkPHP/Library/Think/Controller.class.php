@@ -476,11 +476,7 @@ abstract class Controller {
 	}
 	// 初始化用户信息
 	private function initUser($info) {
-		if (isset ( $_GET ['is_stree'] )) {
-			$suid = $user ['uid'] = rand ( 1, 10000 );
-		} else {
-			$uid = session ( 'mid' );
-		}
+		$uid = session ( 'mid' );		
 		// 重新跳转，去掉URL中的openid参数，以防分享出去的地址带有openid参数
 		$openid = I ( 'get.openid' );
 		
