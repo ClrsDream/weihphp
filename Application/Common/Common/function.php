@@ -2823,18 +2823,34 @@ function wp_money_format($number, $decimals = '2') {
 	return number_format ( $number, $decimals );
 }
 // 以GET方式获取数据，替代file_get_contents
-function get_data($url, $timeout = 5){
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-    
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // 跳过证书检查  
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);//不检查证书
-    
-    $file_contents = curl_exec($ch);
-    curl_close($ch);
-    return $file_contents;
+function get_data($url, $timeout = 5) {
+	$msg = $flat = '';
+	if (strpos ( $url, 'http://' ) !== false || strpos ( $url, 'https://' ) !== false) {
+		
+		$ch = curl_init ();
+		curl_setopt ( $ch, CURLOPT_URL, $url );
+		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt ( $ch, CURLOPT_CONNECTTIMEOUT, $timeout );
+		
+		curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, FALSE ); // 跳过证书检查
+		curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, FALSE ); // 不检查证书
+		$res = curl_exec ( $ch );
+		
+		$flat = curl_errno ( $ch );
+		if ($flat) {
+			$msg = curl_error ( $ch );
+		}
+		curl_close ( $ch );
+	} else {
+		$context = stream_context_create ( array (
+				'http' => array (
+						'timeout' => 30 
+				) 
+		) ); // 超时时间，单位为秒
+		
+		$res = file_get_contents ( $url, 0, $context );
+	}
+	return $res;
 }
 // 以POST方式提交数据
 function post_data($url, $param, $type = 'json', $return_array = true, $useCert = []) {
@@ -2893,7 +2909,7 @@ function post_data($url, $param, $type = 'json', $return_array = true, $useCert 
 	if ($flat) {
 		$msg = curl_error ( $ch );
 	}
-
+        curl_close ( $ch );
 	if ($flat) {
 		return [ 
 				'curl_erron' => $flat,
@@ -3915,61 +3931,61 @@ function getImg($url = "", $filename = "")
  * /Uploads/Editor/gh_dd85ac50d2dd/2016-08-26/57bfa4a23fba5.png
  */
 function mk_rule_image($imgurl, $w, $h) {
-   
-    if (preg_match ( '#^/Uploads/Picture/#i', $imgurl ) || preg_match ( '#^/Public/static/icon/#i', $imgurl )) { // 内部图片
-        $imgurl = '.' . $imgurl;
-        $filename = basename ( $imgurl );
-        $filename_ex = explode ( '.', $filename );
-        $dirname = dirname ( $imgurl );
-        $dirname_new = $dirname . '/' . $filename_ex [0] . "_$w" . "X$h." . $filename_ex [1];
-        if (file_exists ( $dirname_new )) {
-            return str_replace ( './Uploads', SITE_URL . '/Uploads', $dirname_new );
-        }
-
-        file_exists ( $imgurl ) && $imginfo = getimagesize ( $imgurl ); // 图片存在并获取到信息
-
-        if ($imginfo) { // 规格图片存在
-            if ($imginfo [0] > $w || $imginfo ['1'] > $h) {
-                $img_model || $img_model = new \Think\Image ();
-                //生成缩略图
-                $re = $img_model->open ( $imgurl );
-
-                $res = $img_model->thumb ( $w, $h )->save ( $dirname_new );
-            }else{
-                return SITE_URL . $imgurl;
-            }
-        }
-        return str_replace ( './Uploads', SITE_URL . '/Uploads', $dirname_new );
-    }
-    if (preg_match ( '#^(http|https)://#i', $imgurl )) { // 外部
-        $imgurl1=$imgurl;
-        $imginfo = getimagesize ( $imgurl ); // 图片存在并获取到信息
-        // dump($imginfo);
-        $url_info = parse_url ( $imgurl );
-        $filename = basename ( $url_info ['path'] );
-        $filename_ex = explode ( '.', $filename );
-        $dirname = './Uploads/Picture';
-        $dirname_new = $dirname . '/' . think_weiphp_md5 ( $filename_ex [0] . $url_info ['query'] ) . "_$w" . "X$h." . 'jpg'; // $filename_ex[1];
-        $imgurl = SITE_URL . '/Uploads/Picture/' . think_weiphp_md5 ( $filename_ex [0] . $url_info ['query'] ) . "_$w" . "X$h." . 'jpg';
-        if (file_exists ( $dirname_new )) {
-            return $imgurl;
-        }
-        if ($imginfo) { // 规格图片存在
-            if ($imginfo [0] > $w || $imginfo [1] > $h) {
-                $img_model || $img_model = new \Think\Image ();
-
-                $save_filename = './Uploads/Picture/' . $filename;
-                $res = getImg ( $imgurl1, $save_filename );
-
-                $re = $img_model->open ( $save_filename );
-
-                $res = $img_model->thumb ( $w, $h)->save ( $dirname_new );
-                unlink ( $save_filename );
-            }else{
-                getImg ( $imgurl1, $dirname_new );
-                $imgurl = SITE_URL .$dirname_new;
-            }
-        }
-        return $imgurl;
-    }
+	if (preg_match ( '#^/Uploads/Picture/#i', $imgurl )) { // 内部图片
+		$imgurl = '.' . $imgurl;
+		$filename = basename ( $imgurl );
+		$filename_ex = explode ( '.', $filename );
+		$dirname = dirname ( $imgurl );
+		$dirname_new = $dirname . '/' . $filename_ex [0] . "_$w" . "X$h." . $filename_ex [1];
+		if (file_exists ( $dirname_new )) {
+			return str_replace ( './Uploads', SITE_URL . '/Uploads', $dirname_new );
+		}
+		
+		file_exists ( $imgurl ) && $imginfo = getimagesize ( $imgurl ); // 图片存在并获取到信息
+		
+		if ($imginfo) { // 规格图片存在
+			if ($imginfo [0] > $w || $imginfo ['1'] > $h) {
+				$img_model || $img_model = new \Think\Image ();
+				// 生成缩略图
+				$re = $img_model->open ( $imgurl );
+				
+				$res = $img_model->thumb ( $w, $h )->save ( $dirname_new );
+			} else {
+				return SITE_URL . $imgurl;
+			}
+		}
+		return str_replace ( './Uploads', SITE_URL . '/Uploads', $dirname_new );
+	}
+	if (preg_match ( '#^(http|https)://#i', $imgurl )) { // 外部
+		$imgurl1 = $imgurl;
+		$imginfo = getimagesize ( $imgurl ); // 图片存在并获取到信息
+		                                     // dump($imginfo);
+		$url_info = parse_url ( $imgurl );
+		$filename = basename ( $url_info ['path'] );
+		$filename_ex = explode ( '.', $filename );
+		$dirname = './Uploads/Picture';
+		$dirname_new = $dirname . '/' . think_weiphp_md5 ( $filename_ex [0] . $url_info ['query'] ) . "_$w" . "X$h." . 'jpg'; // $filename_ex[1];
+		$imgurl = SITE_URL . '/Uploads/Picture/' . think_weiphp_md5 ( $filename_ex [0] . $url_info ['query'] ) . "_$w" . "X$h." . 'jpg';
+		if (file_exists ( $dirname_new )) {
+			return $imgurl;
+		}
+		if ($imginfo) { // 规格图片存在
+			if ($imginfo [0] > $w || $imginfo [1] > $h) {
+				$img_model || $img_model = new \Think\Image ();
+				
+				$save_filename = './Uploads/Picture/' . $filename;
+				$res = getImg ( $imgurl1, $save_filename );
+				
+				$re = $img_model->open ( $save_filename );
+				
+				$res = $img_model->thumb ( $w, $h )->save ( $dirname_new );
+				unlink ( $save_filename );
+			} else {
+				getImg ( $imgurl1, $dirname_new );
+				$imgurl = SITE_URL . $dirname_new;
+			}
+		}
+		return $imgurl;
+	}
+	return SITE_URL . $imgurl;
 }
