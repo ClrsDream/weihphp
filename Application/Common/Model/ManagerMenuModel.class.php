@@ -126,7 +126,6 @@ class ManagerMenuModel extends Model {
 		
 		// 第二步：获取导航数据
 		$menus = $this->_get_manager_menu ( $uid, $addonList );
-		// dump ( $menus );
 		// 第三步：获取用户登录进入时的初始化URL
 		$menus ['init_url'] = '';
 		foreach ( $menus ['core_top_menu'] as $t ) {

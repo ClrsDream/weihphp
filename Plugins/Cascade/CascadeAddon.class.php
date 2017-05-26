@@ -80,7 +80,6 @@ class CascadeAddon extends Plugin {
 		
 		$data ['default_value'] = $data ['value'];
 		empty ( $data ['default_value'] ) || $data ['default_value'] = '"' . str_replace ( ',', '","', $data ['default_value'] ) . '"';
-		//dump($data);exit;
 		$this->assign ( $data );
 		
 		$this->display ( 'content' );

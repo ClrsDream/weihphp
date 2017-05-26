@@ -43,7 +43,6 @@ class AddonCategoryController extends AdminController {
 	// 插件分类编辑
 	function category() {
 		$map ['id'] = I ( 'id' );
-		//dump($map);exit;
 		if (IS_POST) {
 		    $cate_id =I ( 'cate_id',0,"intval" );
 		    
