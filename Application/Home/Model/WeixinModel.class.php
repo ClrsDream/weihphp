@@ -122,6 +122,7 @@ class WeixinModel extends Model {
 		$msg ['MsgType'] = $msgType;
 		if ($_REQUEST ['doNotInit']) {
 			// dump ( $msg );
+			echo 'success';
 			exit ();
 		}
 		
